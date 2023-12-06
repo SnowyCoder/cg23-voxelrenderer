@@ -1,15 +1,16 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android' version "2.0.0-Beta1"
 }
 
 android {
     ndkVersion "25.2.9519653"
-    compileSdk 31
+    compileSdk 34
 
     defaultConfig {
-        applicationId "co.realfit.agdkwinitwgpu"
+        applicationId "dev.rossilorenzo.voxelrender"
         minSdk 28
-        targetSdk 31
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -30,20 +31,24 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-    namespace 'co.realfit.agdkwinitwgpu'
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+    namespace 'dev.rossilorenzo.voxelrender'
 }
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.5.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.10.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.core:core-ktx:1.12.0'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     // To use the Android Frame Pacing library
     //implementation "androidx.games:games-frame-pacing:1.9.1"
@@ -60,4 +65,3 @@ dependencies {
     // To use the Games Text Input Library
     //implementation "androidx.games:games-text-input:1.1.0"
 }
-

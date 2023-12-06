@@ -9,7 +9,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RustTemplate">
         <activity
-            android:name=".MainActivity"
+            android:name="dev.rossilorenzo.voxelrender.MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:exported="true">
