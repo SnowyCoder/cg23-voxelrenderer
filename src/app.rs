@@ -28,6 +28,9 @@ pub struct RenderState {
     // instances
     pub instance_buffer: wgpu::Buffer,
     pub instance_count: u32,
+    pub palette_texture: Texture,
+    pub texture_bind_group_layout: wgpu::BindGroupLayout,
+    pub texture_bind_group: wgpu::BindGroup,
 
     // camera
     pub camera_uniform: CameraUniform,
@@ -149,10 +152,45 @@ impl App {
         let depth_texture =
             Texture::create_depth_texture(&device, (window_size.width, window_size.height), "depth_texture");
 
+
+        let texture_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                entries: &[
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 0,
+                        visibility: wgpu::ShaderStages::FRAGMENT,
+                        ty: wgpu::BindingType::Texture {
+                            multisampled: false,
+                            view_dimension: wgpu::TextureViewDimension::D2,
+                            sample_type: wgpu::TextureSampleType::Float { filterable: false },
+                        },
+                        count: None,
+                    },
+                    // NO SAMPLER!
+                    // We will only use loadTexture (not sampleTexture)
+                    // so we save space (and hopefully performance)
+                ],
+                label: Some("texture_bind_group_layout"),
+            });
+
+        let palette_texture = Texture::white(&device, &queue);
+        let texture_bind_group = device.create_bind_group(
+            &wgpu::BindGroupDescriptor {
+                layout: &texture_bind_group_layout,
+                entries: &[
+                    wgpu::BindGroupEntry {
+                        binding: 0,
+                        resource: wgpu::BindingResource::TextureView(&palette_texture.view),
+                    },
+                ],
+                label: Some("diffuse_bind_group"),
+            }
+        );
+
         log::info!("WGPU: creating pipeline layout");
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: None,
-            bind_group_layouts: &[&camera_bind_group_layout],
+            bind_group_layouts: &[&camera_bind_group_layout, &texture_bind_group_layout],
             push_constant_ranges: &[],
         });
 
@@ -221,6 +259,9 @@ impl App {
             index_buffer,
             instance_buffer,
             instance_count: 0,
+            palette_texture,
+            texture_bind_group_layout,
+            texture_bind_group,
         }
     }
 
@@ -321,13 +362,14 @@ impl App {
             Vector3::new(a.x.max(x.pos.x), a.y.max(x.pos.y), a.z.max(x.pos.z))
         }) + Vector3::new(1, 1, 1);
 
-        log::error!("Center: {center:?}");
-        log::error!("Dims: {:?} vs {:?}", real_dims, scene.grid_size);
+        log::info!("Center: {center:?}");
+        log::info!("Dims: {:?} vs {:?}", real_dims, scene.grid_size);
 
+        let (palette, palette_width) = Self::create_palette(&rs, &scene);
 
         let instances: Vec<InstanceData> = scene.voxels.iter().map(|x| InstanceData {
             pos: [x.pos.x as f32, x.pos.y as f32, x.pos.z as f32 ],
-            color: scene.colors[x.color as usize].as_instance_data(),
+            color: Self::color_index_to_coord(x.color, palette_width),
         }).collect();
         let instance_buffer = rs.device.create_buffer_init(&BufferInitDescriptor {
             label: Some("Indices Bufer"),
@@ -337,10 +379,56 @@ impl App {
 
         rs.instance_buffer = instance_buffer;
         rs.instance_count = instances.len() as _;
+        rs.texture_bind_group = rs.device.create_bind_group(
+            &wgpu::BindGroupDescriptor {
+                layout: &rs.texture_bind_group_layout,
+                entries: &[
+                    wgpu::BindGroupEntry {
+                        binding: 0,
+                        resource: wgpu::BindingResource::TextureView(&palette.view),
+                    },
+                ],
+                label: Some("palette_bind_group"),
+            }
+        );
+        rs.palette_texture = palette;
         log::warn!("Loaded scene!!: {}", instances.len());
+        //log::warn!("Instances: {:?}", instances);
 
         let camera = &mut self.world_state.camera;
         camera.target = Point3::from_vec(center);
         camera.eye = Point3::from_vec(center * 3.0);
+    }
+
+    fn create_palette(rs: &RenderState, scene: &Scene) -> (Texture, u32) {
+        let colors_len = scene.colors.len() as u32;
+
+        // Choose edge size (iterate power of 2 until e*e >= colors_len)
+        let mut i = 1u32;
+        while colors_len > (1 << (i * 2)) {
+            i *= 2;
+        }
+        let edge =  1 << i;
+
+        log::info!("Allocating {} colors in {}x{} texture (wasted texels: {})", colors_len, edge, edge, (edge * edge - colors_len));
+
+        let image_size_bytes = (edge * edge * 4) as usize;
+        let mut image_data = Vec::with_capacity(image_size_bytes);
+
+        for color in scene.colors.iter() {
+            image_data.push(color.r);
+            image_data.push(color.g);
+            image_data.push(color.b);
+            image_data.push(255);
+        }
+        // fill the rest with 0
+        image_data.resize(image_size_bytes, 255);
+
+        let tex = Texture::from_image(&rs.device, &rs.queue, &image_data, (edge, edge), Some("Voxel palette"));
+        (tex, edge)
+    }
+
+    fn color_index_to_coord(index: u32, edge: u32) -> u32 {
+        (index % edge) | ((index / edge) << 16)
     }
 }

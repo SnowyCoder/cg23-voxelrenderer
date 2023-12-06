@@ -32,7 +32,7 @@ impl ModelVertex {
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct InstanceData {
     pub pos: [f32; 3],
-    pub color: [f32; 3],
+    pub color: u32,
 }
 
 impl InstanceData {
@@ -49,7 +49,7 @@ impl InstanceData {
                 wgpu::VertexAttribute {
                     offset: mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
                     shader_location: 6,
-                    format: wgpu::VertexFormat::Float32x3,
+                    format: wgpu::VertexFormat::Uint32,
                 },
             ],
         }

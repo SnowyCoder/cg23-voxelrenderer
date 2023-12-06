@@ -11,12 +11,12 @@ struct VertexInput {
 }
 struct InstanceInput {
     @location(5) pos: vec3<f32>,
-    @location(6) color: vec3<f32>,
+    @location(6) color: u32,
 }
 
 struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
-    @location(0) color: vec3<f32>,
+    @location(0) color: u32,
 }
 
 @vertex
@@ -32,7 +32,13 @@ fn vs_main(
 
 // Fragment shader
 
+@group(1) @binding(0) var t_color : texture_2d<f32>;
+
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    return vec4<f32>(in.color, 1.0);
+    var y = in.color >> 16u;
+    var x = in.color & 0xFFFFu;
+
+    // Look mum, no sampler!
+    return textureLoad(t_color, vec2(x, y), 0);
 }

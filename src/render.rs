@@ -11,7 +11,6 @@ pub fn render(app: &mut App) {
         (Some(x), Some(y)) => (x, y),
         _ => return,
     };
-    //log::info!("1");
 
     // Update camera uniforms
     rs.queue.write_buffer(
@@ -20,14 +19,10 @@ pub fn render(app: &mut App) {
         bytemuck::cast_slice(&[rs.camera_uniform]),
     );
 
-    //log::info!("2");
-
     let frame = surface_state
         .surface
         .get_current_texture()
         .expect("Failed to acquire next swap chain texture");
-
-    //log::info!("3");
 
     let view = frame
         .texture
@@ -63,6 +58,7 @@ pub fn render(app: &mut App) {
             });
         rpass.set_pipeline(&rs.render_pipeline);
         rpass.set_bind_group(0, &rs.camera_bind_group, &[]);
+        rpass.set_bind_group(1, &rs.texture_bind_group, &[]);
         rpass.set_vertex_buffer(0, rs.vertex_buffer.slice(..));
         rpass.set_vertex_buffer(1, rs.instance_buffer.slice(..));
         rpass.set_index_buffer(rs.index_buffer.slice(..), wgpu::IndexFormat::Uint32);
@@ -74,5 +70,4 @@ pub fn render(app: &mut App) {
     rs.queue.submit(Some(encoder.finish()));
     frame.present();
     surface_state.window.request_redraw();
-    //log::info!("-");
 }

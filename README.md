@@ -7,6 +7,9 @@ while using [learn-wgpu](https://github.com/sotrh/learn-wgpu) to, well, learn wg
 ## TODO: SAY A BIT MORE
 
 
+## What is vly format?
+A simple voxel serialization format similar to ply but simpler
+
 ## Build Instructions
 
 
