@@ -50,11 +50,7 @@ class ModelViewerActivity : GameActivity() {
                 contentResolver.openInputStream(uri)
             }
         }?.let { stream ->
-            try {
-                stream.readBytes()
-            } finally {
-                stream.close()
-            }
+            stream.use { it.readBytes() }
         }
 
         // You can set IME fields here or in native code using GameActivity_setImeEditorInfoFields.

@@ -9,7 +9,7 @@ edition = "2021"
 log = "0.4"
 winit = { version = "0.29", path="../winit", features = ["android-game-activity", "rwh_05"]}
 wgpu = "0.18.0"
-pollster = "0.2"
+pollster = "0.3"
 nom = "7.1.3"
 cgmath = "0.18.0"
 ply-rs = "0.1.3"

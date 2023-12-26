@@ -69,7 +69,7 @@ fn run(event_loop: EventLoop<()>, initial_scene: Option<Scene>) {
                 render::render(&mut app);
             }
             Event::WindowEvent {
-                event: WindowEvent::CloseRequested  |
+                event: WindowEvent::CloseRequested |
                 WindowEvent::KeyboardInput { event: KeyEvent { logical_key: Key::Named(NamedKey::BrowserBack), ..}, ..},
                 ..
             } => event_loop.exit(),
