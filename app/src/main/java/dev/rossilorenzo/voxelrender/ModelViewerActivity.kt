@@ -1,12 +1,17 @@
 package dev.rossilorenzo.voxelrender
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.google.androidgamesdk.GameActivity
 
-class MainActivity : GameActivity() {
+
+class ModelViewerActivity : GameActivity() {
+
+    var scene: ByteArray? = null
     private fun hideSystemUI() {
         // From API 30 onwards, this is the recommended way to hide the system UI, rather than
         // using View.setSystemUiVisibility.
@@ -26,6 +31,32 @@ class MainActivity : GameActivity() {
         // When false, we render behind any system UI windows.
         WindowCompat.setDecorFitsSystemWindows(window, false)
         hideSystemUI()
+
+        if (Intent.ACTION_VIEW == intent.action) {
+            Log.i(TAG, "INTENT IS VIEW!!!")
+        } else {
+            Log.e(TAG, "intent was something else: ${intent.action}")
+            finish()
+            super.onCreate(savedInstanceState)
+            return
+        }
+
+        scene = intent.data?.let { uri ->
+            if (uri.scheme == "assets") {
+                val path = (uri.path ?: "/").substring(1)
+                Log.e(TAG, "URI IS: $uri, path: $path")
+                assets.open(path)
+            } else {
+                contentResolver.openInputStream(uri)
+            }
+        }?.let { stream ->
+            try {
+                stream.readBytes()
+            } finally {
+                stream.close()
+            }
+        }
+
         // You can set IME fields here or in native code using GameActivity_setImeEditorInfoFields.
         // We set the fields in native_engine.cpp.
         // super.setImeEditorInfoFields(InputType.TYPE_CLASS_TEXT,
@@ -33,13 +64,13 @@ class MainActivity : GameActivity() {
         super.onCreate(savedInstanceState)
     }
 
-    val isGooglePlayGames: Boolean
-        get() {
-            val pm = packageManager
-            return pm.hasSystemFeature("com.google.android.play.feature.HPE_EXPERIENCE")
-        }
+    fun onNativeError(error: String) {
+        Log.e(TAG, error)
+    }
 
     companion object {
+        const val TAG = "ModelViewer"
+
         init {
             // Load the native library.
             // The name "android-game" depends on your CMake configuration, must be

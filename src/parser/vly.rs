@@ -45,7 +45,7 @@ fn parse_voxel(input: &str) -> IResult<&str, Voxel> {
 
 fn parse_color(input: &str) -> IResult<&str, Color> {
     let (input, _) = multispace0(input)?;
-    map(pair(parse_int::<u32>, count(parse_int, 3)), |(_idx, rgb)| 
+    map(pair(parse_int::<u32>, count(parse_int, 3)), |(_idx, rgb)|
         Color::new(rgb[0], rgb[1], rgb[2])
     )(input)
 }
@@ -54,7 +54,7 @@ pub fn parse_scene(input: &str) -> IResult<&str, Scene> {
     let (input, header) = parse_header(input)?;
 
     let (input , voxels) = count(parse_voxel, header.voxel_num as _)(input)?;
-    
+
     let (input, colors) = many0(parse_color)(input)?;
 
     // TODO: Ensure that all colors are ordered

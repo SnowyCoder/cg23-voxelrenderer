@@ -3,12 +3,13 @@ use parser::Scene;
 use wgpu::Instance;
 
 use winit::{
-    event::{Event, WindowEvent},
-    event_loop::{EventLoop, EventLoopBuilder},
+    event::{Event, WindowEvent, KeyEvent},
+    event_loop::EventLoop, keyboard::{NamedKey, Key},
 };
+use parser::parse_scene;
 
 #[cfg(target_os = "android")]
-use winit::platform::android::activity::AndroidApp;
+mod android;
 
 mod parser;
 mod color;
@@ -17,8 +18,6 @@ mod camera;
 mod render;
 mod model;
 mod texture;
-
-const MODEL: &'static str = include_str!("../models/christmas.vly");
 
 
 fn run(event_loop: EventLoop<()>, initial_scene: Option<Scene>) {
@@ -70,7 +69,8 @@ fn run(event_loop: EventLoop<()>, initial_scene: Option<Scene>) {
                 render::render(&mut app);
             }
             Event::WindowEvent {
-                event: WindowEvent::CloseRequested,
+                event: WindowEvent::CloseRequested  |
+                WindowEvent::KeyboardInput { event: KeyEvent { logical_key: Key::Named(NamedKey::BrowserBack), ..}, ..},
                 ..
             } => event_loop.exit(),
             Event::WindowEvent { event, .. } => {
@@ -85,27 +85,9 @@ fn run(event_loop: EventLoop<()>, initial_scene: Option<Scene>) {
 }
 
 #[allow(dead_code)]
-#[cfg(target_os = "android")]
-#[no_mangle]
-fn android_main(app: AndroidApp) {
-    use parser::parse_scene;
-    use winit::platform::android::EventLoopBuilderExtAndroid;
-
-    android_logger::init_once(
-        android_logger::Config::default().with_max_level(log::LevelFilter::Info),
-    );
-    let scene = parse_scene(MODEL, None).expect("Invalid model provided");
-
-    let event_loop = EventLoopBuilder::new().with_android_app(app).build().unwrap();
-    run(event_loop, Some(scene));
-}
-
-#[allow(dead_code)]
 #[cfg(not(target_os = "android"))]
 fn main() {
-    use std::{env, fs};
-
-    use parser::parse_scene;
+    use std::{env, fs, path::Path};
 
     env_logger::builder()
         .filter_level(log::LevelFilter::Info) // Default Log Level
@@ -113,9 +95,10 @@ fn main() {
         .init();
 
     let path = env::args().skip(1).next().expect("Must provide a model path");
-    let file = fs::read_to_string(path).expect("Error reading model");
+    let path = Path::new(&path);
+    let file = fs::read(path).expect("Could not open file");
 
-    let scene = parse_scene(&file, None).expect("Invalid model provided");
+    let scene = parse_scene(&file, path.file_name()).expect("Invalid model provided");
 
     //log::info!("{scene:?}");
 

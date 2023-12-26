@@ -1,6 +1,6 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android' version "2.0.0-Beta1"
+    id 'org.jetbrains.kotlin.android' version "1.9.21"
 }
 
 android {
@@ -15,6 +15,17 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary true
+        }
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.7"
     }
 
     buildTypes {
@@ -38,17 +49,43 @@ android {
         jvmTarget = '17'
     }
     namespace 'dev.rossilorenzo.voxelrender'
+    packaging {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.10.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation 'androidx.activity:activity-compose:1.7.0'
+    implementation platform('androidx.compose:compose-bom:2023.08.00')
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.ui:ui-graphics'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation platform('androidx.compose:compose-bom:2023.08.00')
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
+
+    // Android Compose
+    def composeBom = platform('androidx.compose:compose-bom:2023.10.01')
+    implementation composeBom
+    androidTestImplementation composeBom\
+
+    // Android Studio Preview support
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+
+    // Material Design 3
+    implementation 'androidx.compose.material3:material3'
 
     // To use the Android Frame Pacing library
     //implementation "androidx.games:games-frame-pacing:1.9.1"
@@ -58,6 +95,7 @@ dependencies {
 
     // To use the Games Activity library
     implementation "androidx.games:games-activity:2.0.2"
+    debugImplementation 'androidx.compose.ui:ui-test-manifest'
 
     // To use the Games Controller Library
     //implementation "androidx.games:games-controller:1.1.0"

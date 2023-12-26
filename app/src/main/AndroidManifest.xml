@@ -7,18 +7,38 @@
         android:label="Voxel Renderer"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.RustTemplate">
+        android:theme="@style/Theme.VoxelRenderer">
         <activity
-            android:name="dev.rossilorenzo.voxelrender.MainActivity"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:exported="true">
+            android:name=".ModelChooserActivity"
+            android:exported="true"
+            android:label="ModelChooser"
+            android:theme="@style/Theme.VoxelRenderer">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".ModelViewerActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
-            <meta-data android:name="android.app.lib_name" android:value="main" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="file" />
+                <data android:mimeType="*/*" />
+                <data android:pathPattern=".*\\.vly" />
+                <data android:host="*" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="main" />
         </activity>
     </application>
 
