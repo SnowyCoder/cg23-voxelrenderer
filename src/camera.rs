@@ -14,6 +14,7 @@ const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = Matrix4::new(
 pub struct Camera {
     pub eye: cgmath::Point3<f32>,
     pub target: cgmath::Point3<f32>,
+    pub light: cgmath::Point3<f32>,
     up: cgmath::Vector3<f32>,
     aspect: f32,
     fovy: f32,
@@ -26,6 +27,7 @@ impl Camera {
         Camera {
             eye: (0.0, 5.0, 10.0).into(),
             target: (0.0, 0.0, 0.0).into(),
+            light: (0.0, 0.0, 0.0).into(),
             up: cgmath::Vector3::unit_y(),
             aspect: aspect_ratio,
             fovy: 45.0,

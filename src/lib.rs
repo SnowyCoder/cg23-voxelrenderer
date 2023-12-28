@@ -25,7 +25,7 @@ fn run(event_loop: EventLoop<()>, initial_scene: Option<Scene>) {
 
     // doesn't need to be re-considered later
     let instance = Instance::new(wgpu::InstanceDescriptor {
-        backends: wgpu::Backends::all(),
+        backends: wgpu::Backends::PRIMARY,
         //backends: wgpu::Backends::VULKAN,
         //backends: wgpu::Backends::GL,
         ..Default::default()
@@ -63,7 +63,8 @@ fn run(event_loop: EventLoop<()>, initial_scene: Option<Scene>) {
             } => {
                 app.world_state.camera_controller.update_camera(&mut app.world_state.camera);
                 if let Some(rs) = app.render_state.as_mut() {
-                    rs.camera_uniform.update_view_proj(&app.world_state.camera)
+                    rs.camera_uniform.update_view_proj(&app.world_state.camera);
+                    rs.pos_info_uniform.update(&app.world_state.camera);
                 }
 
                 render::render(&mut app);
@@ -88,6 +89,7 @@ fn run(event_loop: EventLoop<()>, initial_scene: Option<Scene>) {
 #[cfg(not(target_os = "android"))]
 fn main() {
     use std::{env, fs, path::Path};
+    use winit::event_loop::EventLoopBuilder;
 
     env_logger::builder()
         .filter_level(log::LevelFilter::Info) // Default Log Level

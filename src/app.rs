@@ -36,6 +36,9 @@ pub struct RenderState {
     pub camera_uniform: CameraUniform,
     pub camera_buffer: wgpu::Buffer,
     pub camera_bind_group: wgpu::BindGroup,
+    pub pos_info_uniform: PosInfoUniform,
+    pub pos_info_buffer: wgpu::Buffer,
+    pub pos_info_bind_group: wgpu::BindGroup,
 
     pub device: Device,
 }
@@ -49,6 +52,33 @@ pub struct WorldState {
     pub camera: Camera,
     pub camera_controller: CameraController,
     pub scene: Option<Scene>,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+pub struct PosInfoUniform {
+    // https://sotrh.github.io/learn-wgpu/showcase/alignment/#how-to-deal-with-alignment-issues
+    // wgsl vec3<f32> has the same alignment as vec4<f32>
+    light: [f32; 3],
+    _pad1: f32,
+    eye: [f32; 3],
+    _pad2: f32,
+}
+
+impl PosInfoUniform {
+    pub fn new() -> Self {
+        Self {
+            light: [0.0; 3],
+            _pad1: 0.0,
+            eye: [0.0; 3],
+            _pad2: 0.0,
+        }
+    }
+
+    pub fn update(&mut self, camera: &Camera) {
+        self.eye = camera.eye.into();
+        self.light = camera.light.into();
+    }
 }
 
 pub struct App {
@@ -73,9 +103,7 @@ impl App {
             }
         }
     }
-}
 
-impl App {
     fn create_surface<T>(&mut self, event_loop: &EventLoopWindowTarget<T>) {
         let window = winit::window::Window::new(event_loop).unwrap();
         log::info!("WGPU: creating surface for native window");
@@ -101,7 +129,7 @@ impl App {
                     label: None,
                     features: wgpu::Features::empty(),
                     // Make sure we use the texture resolution limits from the adapter, so we can support images the size of the swapchain.
-                    limits: wgpu::Limits::downlevel_webgl2_defaults()
+                    limits: wgpu::Limits::default()
                         .using_resolution(adapter.limits()),
                 },
                 None,
@@ -149,6 +177,38 @@ impl App {
             label: Some("camera_bind_group"),
         });
 
+        // Pos info
+        let pos_info_uniform = PosInfoUniform::new();
+        let pos_info_buffer = device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("PosInfo Buffer"),
+            size: mem::size_of::<PosInfoUniform>() as _,
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
+        let pos_info_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                entries: &[wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                }],
+                label: Some("pos_info_bind_group_layout"),
+            });
+
+        let pos_info_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &pos_info_bind_group_layout,
+            entries: &[wgpu::BindGroupEntry {
+                binding: 0,
+                resource: pos_info_buffer.as_entire_binding(),
+            }],
+            label: Some("pos_info_bind_group"),
+        });
+
         let depth_texture =
             Texture::create_depth_texture(&device, (window_size.width, window_size.height), "depth_texture");
 
@@ -189,14 +249,18 @@ impl App {
 
         log::info!("WGPU: creating pipeline layout");
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: None,
-            bind_group_layouts: &[&camera_bind_group_layout, &texture_bind_group_layout],
+            label: Some("pipeline_layout"),
+            bind_group_layouts: &[
+                &camera_bind_group_layout,
+                &texture_bind_group_layout,
+                &pos_info_bind_group_layout,
+            ],
             push_constant_ranges: &[],
         });
 
         log::info!("WGPU: creating render pipeline");
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: None,
+            label: Some("render_pipeline"),
             layout: Some(&pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader,
@@ -253,6 +317,10 @@ impl App {
             camera_uniform,
             camera_buffer,
             camera_bind_group,
+
+            pos_info_uniform,
+            pos_info_buffer,
+            pos_info_bind_group,
 
             model,
             vertex_buffer,
@@ -393,11 +461,13 @@ impl App {
         );
         rs.palette_texture = palette;
         log::warn!("Loaded scene!!: {}", instances.len());
+        log::warn!("Center!!: {center:?}");
         //log::warn!("Instances: {:?}", instances);
 
         let camera = &mut self.world_state.camera;
-        camera.target = Point3::from_vec(center);
+        camera.target = Point3::from_vec(center - Vector3::new(0.5, 0.5, 0.5));
         camera.eye = Point3::from_vec(center * 3.0);
+        camera.light = camera.eye;
     }
 
     fn create_palette(rs: &RenderState, scene: &Scene) -> (Texture, u32) {

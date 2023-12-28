@@ -19,6 +19,13 @@ pub fn render(app: &mut App) {
         bytemuck::cast_slice(&[rs.camera_uniform]),
     );
 
+    // Update position info uniforms
+    rs.queue.write_buffer(
+        &rs.pos_info_buffer,
+        0,
+        bytemuck::cast_slice(&[rs.pos_info_uniform]),
+    );
+
     let frame = surface_state
         .surface
         .get_current_texture()
@@ -59,10 +66,11 @@ pub fn render(app: &mut App) {
         rpass.set_pipeline(&rs.render_pipeline);
         rpass.set_bind_group(0, &rs.camera_bind_group, &[]);
         rpass.set_bind_group(1, &rs.texture_bind_group, &[]);
+        rpass.set_bind_group(2, &rs.pos_info_bind_group, &[]);
         rpass.set_vertex_buffer(0, rs.vertex_buffer.slice(..));
         rpass.set_vertex_buffer(1, rs.instance_buffer.slice(..));
         rpass.set_index_buffer(rs.index_buffer.slice(..), wgpu::IndexFormat::Uint32);
-        
+
         let index_count = rs.model.indices.len() as _;
         let instance_count = rs.instance_count;
         rpass.draw_indexed(0..index_count, 0, 0..instance_count);
