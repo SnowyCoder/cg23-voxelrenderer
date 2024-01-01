@@ -72,8 +72,8 @@ pub fn parse_model(mut f: impl BufRead) -> Model {
     }
     let index_count = face_list.iter().map(|x| x.vertex_index.len()).sum();
     let mut indices = Vec::with_capacity(index_count);
-    for mut face in face_list.into_iter() {
-        indices.extend(face.vertex_index.drain(..))
+    for face in face_list.into_iter() {
+        indices.extend(face.vertex_index.into_iter())
     }
 
     return Model {

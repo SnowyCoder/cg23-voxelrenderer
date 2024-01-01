@@ -425,10 +425,11 @@ impl App {
             _ => return,
         };
 
-        let center = scene.grid_size.map(|x| x as f32 / 2.0);
         let real_dims = scene.voxels.iter().fold(Vector3::<u32>::new(0, 0, 0), |a, x| {
             Vector3::new(a.x.max(x.pos.x), a.y.max(x.pos.y), a.z.max(x.pos.z))
         }) + Vector3::new(1, 1, 1);
+        let center = real_dims.map(|x| x as f32 / 2.0);
+
 
         log::info!("Center: {center:?}");
         log::info!("Dims: {:?} vs {:?}", real_dims, scene.grid_size);
@@ -466,8 +467,8 @@ impl App {
 
         let camera = &mut self.world_state.camera;
         camera.target = Point3::from_vec(center - Vector3::new(0.5, 0.5, 0.5));
-        camera.eye = Point3::from_vec(center * 3.0);
-        camera.light = camera.eye;
+        camera.eye = Point3::from_vec(center + Vector3::new(center.x * -3.0, center.y * 1.0, center.z * 1.0));
+        camera.light = Point3::from_vec(3.0 * center);
     }
 
     fn create_palette(rs: &RenderState, scene: &Scene) -> (Texture, u32) {

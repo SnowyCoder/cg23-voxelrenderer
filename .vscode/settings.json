@@ -1,6 +1,4 @@
 {
-    "rust-analyzer.cargo.target": "aarch64-linux-android",
-    "rust-analyzer.checkOnSave": true,
-    "files.insertFinalNewline": true,
-    "files.trimFinalNewlines": true
+    "_rust-analyzer.cargo.target": "aarch64-linux-android",
+    "rust-analyzer.checkOnSave": true
 }
