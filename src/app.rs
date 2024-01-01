@@ -467,7 +467,7 @@ impl App {
 
         let camera = &mut self.world_state.camera;
         camera.target = Point3::from_vec(center - Vector3::new(0.5, 0.5, 0.5));
-        camera.eye = Point3::from_vec(center + Vector3::new(center.x * -3.0, center.y * 1.0, center.z * 1.0));
+        camera.eye = Point3::from_vec(center + Vector3::new(center.x * -4.0, center.y * 2.0, center.z * 2.0));
         camera.light = Point3::from_vec(3.0 * center);
     }
 
