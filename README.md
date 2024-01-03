@@ -13,15 +13,32 @@ while using [learn-wgpu](https://github.com/sotrh/learn-wgpu) to, well, learn wg
 - Runtime texture palette generation
 
 
-## TODO
+## Not implemented (yet)
 - Face merging
 - Raytracing
 - Web support
 - Transparency
 
 
+## Libraries
+Original project requirements specify it's not possible to use any additional libraries like game engines or rendering abstraction layers.
+Here's a list of the used libraries and their purpose
+- `log`, `env_logger`, `android_logger`: Log handling helpers
+- `winit`: Window initialization on multiple platforms
+- `wgpu`: WebGPU-like interface and implementation
+          This is the only library that could be described as an abstraction layer, but the project has already been discussed in person with the professor
+- `cgmath`: Linear Algebra helper
+- `ply-rs`: .ply  format parser
+- `bytemuck`: Helper for serializing data to send to the GPU
+- `nom`: Parser framework (for .vox and .vly formats)
+- `anyhow`: Error handling helper
+- `pollster`: Very lightweight async runtime
+- `jni`: Java Native Interface library, used to retrieve the model to render from Android
+
+
 ## What is vly format?
-A simple voxel serialization format similar to ply but simpler
+A simple voxel serialization format similar to ply but simpler, developed specifically as a challenge for this project.
+You can find more precise requirements in [ProgettoCG2324.pdf](ProgettoCG2324.pdf)
 
 ## Build Instructions
 
@@ -44,3 +61,5 @@ Desktop:
 
 cargo run --features desktop -- models/christmas.vly
 ```
+
+Note: add `--release` in cargo parameters to enable compiler optimizations
