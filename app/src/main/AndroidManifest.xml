@@ -4,10 +4,15 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Voxel Renderer"
+        android:label="@string/title_app_label"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.VoxelRenderer">
+        <activity
+            android:name=".ErrorLogActivity"
+            android:exported="false"
+            android:label="@string/title_activity_error_log"
+            android:theme="@style/Theme.VoxelRenderer" />
         <activity
             android:name=".ModelChooserActivity"
             android:exported="true"
@@ -22,7 +27,7 @@
             android:name=".ModelViewerActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:exported="true"
-            android:label="Model Viewer"
+            android:label="@string/title_activity_model_viewer"
             android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

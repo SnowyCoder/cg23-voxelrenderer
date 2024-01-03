@@ -1,0 +1,9 @@
+<resources>
+    <string name="title_activity_error_log" translatable="false">Error Log</string>
+    <string name="title_app_label" translatable="false">Voxel Renderer</string>
+    <string name="title_activity_model_viewer" translatable="false">Model Viewer</string>
+
+    <string name="title_choose_model">Choose Model</string>
+    <string name="title_explore_filesystem">Explore</string>
+
+</resources>

@@ -1,5 +1,5 @@
 use winit::{
-    platform::android::activity::AndroidApp,
+    platform::android::{activity::AndroidApp, EventLoopBuilderExtAndroid},
     event_loop::EventLoopBuilder
 };
 use jni::{objects::{JByteArray, JObject, JValue}, JavaVM, JNIEnv};
@@ -33,8 +33,6 @@ fn throw_error(env: &mut JNIEnv, activity: &JObject, error: anyhow::Error) -> an
 #[allow(dead_code)]
 #[no_mangle]
 fn android_main(app: AndroidApp) {
-    use winit::platform::android::EventLoopBuilderExtAndroid;
-
     android_logger::init_once(
         android_logger::Config::default().with_max_level(log::LevelFilter::Info),
     );

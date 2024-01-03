@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -77,7 +78,7 @@ fun AssetList(assets: List<String>, openAsset: (String) -> Unit, pickFile: () ->
     Scaffold (
         topBar = {
             Text(
-                text = "Choose model",
+                text = stringResource(R.string.title_choose_model),
                 style = MaterialTheme.typography.headlineLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -110,7 +111,7 @@ fun AssetList(assets: List<String>, openAsset: (String) -> Unit, pickFile: () ->
                     }
                 }
                 item {
-                    AssetButton("Explore") {
+                    AssetButton(stringResource(R.string.title_explore_filesystem)) {
                         pickFile()
                     }
                 }

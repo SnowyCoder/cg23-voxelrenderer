@@ -2,6 +2,8 @@ package dev.rossilorenzo.voxelrender
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -12,6 +14,7 @@ import com.google.androidgamesdk.GameActivity
 class ModelViewerActivity : GameActivity() {
 
     var scene: ByteArray? = null
+
     private fun hideSystemUI() {
         // From API 30 onwards, this is the recommended way to hide the system UI, rather than
         // using View.setSystemUiVisibility.
@@ -62,6 +65,13 @@ class ModelViewerActivity : GameActivity() {
 
     fun onNativeError(error: String) {
         Log.e(TAG, error)
+        Handler(Looper.getMainLooper()).post {
+            startActivity(Intent(this, ErrorLogActivity::class.java).apply {
+                action = Intent.ACTION_VIEW
+                putExtra("error", error)
+            })
+            finish()
+        }
     }
 
     companion object {
