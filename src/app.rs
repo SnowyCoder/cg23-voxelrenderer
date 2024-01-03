@@ -492,7 +492,7 @@ impl App {
             image_data.push(color.b);
             image_data.push(255);
         }
-        // fill the rest with 0
+        // fill the rest with white
         image_data.resize(image_size_bytes, 255);
 
         let tex = Texture::from_image(&rs.device, &rs.queue, &image_data, (edge, edge), Some("Voxel palette"));

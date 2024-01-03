@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 log = "0.4"
-winit = { version = "0.29", path="../winit", features = ["android-game-activity", "rwh_05"]}
+winit = { version = "0.29", git="https://github.com/SnowyCoder/winit-fix-android.git", rev="e4fa39d", features = ["android-game-activity", "rwh_05"]}
 wgpu = "0.18.0"
 pollster = "0.3"
 nom = "7.1.3"

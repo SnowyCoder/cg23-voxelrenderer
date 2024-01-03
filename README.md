@@ -4,14 +4,26 @@ This is my entry for the "Mobile Programming" exam developed in 2023 for UniMoRe
 The initial files are based on ![rust-mobile examples](https://github.com/rust-mobile/rust-android-examples/tree/main/agdk-winit-wgpu),
 while using [learn-wgpu](https://github.com/sotrh/learn-wgpu) to, well, learn wgpu.
 
-## TODO: SAY A BIT MORE
+## Features
+- Instance-based rendering
+- .vly format parsing
+- .vox format parsing
+- Blinn-Phong shader
+- Android & Desktop support
+- Runtime texture palette generation
+
+
+## TODO
+- Face merging
+- Raytracing
+- Web support
+- Transparency
 
 
 ## What is vly format?
 A simple voxel serialization format similar to ply but simpler
 
 ## Build Instructions
-
 
 Android:
 ```bash
